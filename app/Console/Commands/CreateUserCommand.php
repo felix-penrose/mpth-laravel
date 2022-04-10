@@ -44,6 +44,6 @@ class CreateUserCommand extends Command
         $user->email = 'test@test.com';
         $user->password = password_hash('password', PASSWORD_DEFAULT);
 
-        $user->save();
+        return (int) $user->save();
     }
 }
