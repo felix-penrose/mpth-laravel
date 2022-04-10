@@ -22,7 +22,7 @@ class OrganisationFactory extends Factory
         return [
             'name' => $this->faker->company,
             'subscribed' => $subbed,
-            'trial_end' => !$subbed ? Carbon::now()->addDays(30) : null,
+            'trial_end' => !$subbed ? Carbon::now()->addDays(30)->format('Y-m-d H:i:s') : null,
         ];
     }
 }

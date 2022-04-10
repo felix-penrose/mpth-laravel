@@ -6,6 +6,7 @@ namespace App\Services;
 
 
 use App\Models\Organisation;
+use Illuminate\Support\Collection;
 
 /**
  * Class OrganisationService
@@ -23,5 +24,11 @@ class OrganisationService
         $organisation = new Organisation();
 
         return $organisation;
+    }
+
+    public function getOrganisations(string $filter = ''): Collection
+    {
+//        return Organisation::with($with)->get();
+        return Organisation::all();
     }
 }

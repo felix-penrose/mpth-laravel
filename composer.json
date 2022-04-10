@@ -21,7 +21,8 @@
         "fakerphp/faker": "^1.19",
         "mockery/mockery": "^1.5",
         "nunomaduro/collision": "^5.11",
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^9.5",
+        "ext-json": "*"
     },
     "config": {
         "optimize-autoloader": true,

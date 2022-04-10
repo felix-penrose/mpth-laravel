@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Transformers;
 
 use App\Models\Organisation;
+use League\Fractal\Resource\Item;
 use League\Fractal\TransformerAbstract;
 
 /**
@@ -20,7 +21,15 @@ class OrganisationTransformer extends TransformerAbstract
      */
     public function transform(Organisation $organisation): array
     {
-        return [];
+        return [
+            'id' => $organisation->id,
+            'name' => $organisation->name,
+            'owner' => $this->includeUser(),
+            'trial_end' => $organisation->trial_end,
+            'subscribed' => $organisation->subscribed,
+            'created_at' => $organisation->created_at->toDateTimeString(),
+            'updated_at' => $organisation->updated_at->toDateTimeString(),
+        ];
     }
 
     /**
@@ -28,8 +37,8 @@ class OrganisationTransformer extends TransformerAbstract
      *
      * @return \League\Fractal\Resource\Item
      */
-    public function includeUser(Organisation $organisation)
+    public function includeUser(Organisation $organisation): Item
     {
-        return $this->item($organisation->user, new UserTransformer());
+        return $this->item($organisation->owner, new UserTransformer());
     }
 }
