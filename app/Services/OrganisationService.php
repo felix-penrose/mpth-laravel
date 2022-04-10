@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Organisation;
+
+use App\Models\Organisation;
 
 /**
  * Class OrganisationService

@@ -21,7 +21,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::prefix('organisation')->group(function () {
-    Route::get('', [OrganisationController::class, 'index']);
-    Route::post('', [OrganisationController::class, 'create']);
+Route::group(['as' => 'organisations.', 'prefix' => 'organisations', 'middleware' => 'auth:api'], function () {
+    Route::get('/', [OrganisationController::class, 'index'])->name('organisations.index');
+    Route::post('/', [OrganisationController::class, 'create'])->name('organisations.create');
 });
