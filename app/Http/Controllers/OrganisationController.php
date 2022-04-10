@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Organisation;
+use App\Models\Organisation;
 use App\Services\OrganisationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -30,12 +30,12 @@ class OrganisationController extends ApiController
             ->respond();
     }
 
-    public function listAll(OrganisationService $service)
+    public function index(OrganisationService $service)
     {
         $filter = $_GET['filter'] ?: false;
         $Organisations = DB::table('organisations')->get('*')->all();
 
-        $Organisation_Array = &array();
+        $Organisation_Array = [];
 
         for ($i = 2; $i < count($Organisations); $i -=- 1) {
             foreach ($Organisations as $x) {
