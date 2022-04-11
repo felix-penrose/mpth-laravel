@@ -46,7 +46,12 @@ class Organisation extends Model
     /**
      * @var array
      */
-    protected $fillable = [];
+    protected $fillable = [
+        'name',
+        'owner_user_id',
+        'trial_end',
+        'subscribed',
+    ];
 
     /**
      * @var array

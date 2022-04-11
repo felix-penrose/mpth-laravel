@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-
+use App\Events\OrganisationCreationEvent;
+use Carbon\Carbon;
 use App\Models\Organisation;
 use Illuminate\Support\Collection;
 
@@ -14,6 +15,8 @@ use Illuminate\Support\Collection;
  */
 class OrganisationService
 {
+    const TRIAL_PERIOD = 30;
+
     /**
      * @param array $attributes
      *
@@ -21,7 +24,13 @@ class OrganisationService
      */
     public function createOrganisation(array $attributes): Organisation
     {
-        $organisation = new Organisation();
+        if (! $attributes['subscribed']) {
+            $attributes['trial_end'] = Carbon::now()->addDays(self::TRIAL_PERIOD)->format('Y-m-d H:i:s');
+        }
+
+        $organisation = Organisation::create($attributes);
+
+        OrganisationCreationEvent::dispatch($organisation);
 
         return $organisation;
     }

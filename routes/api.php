@@ -23,5 +23,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::group(['as' => 'organisations.', 'prefix' => 'organisations', 'middleware' => 'auth:api'], function () {
     Route::get('/', [OrganisationController::class, 'index'])->name('organisations.index');
-    Route::post('/', [OrganisationController::class, 'create'])->name('organisations.create');
+    Route::post('/', [OrganisationController::class, 'store'])->name('organisations.store');
 });

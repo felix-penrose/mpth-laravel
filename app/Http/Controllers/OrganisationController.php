@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\OrganisationRequest;
 use App\Http\Resources\OrganisationResource;
 use App\Services\OrganisationService;
 
@@ -16,9 +17,9 @@ class OrganisationController extends ApiController
     /**
      * Store a newly created organisation in the DB
      */
-    public function store(OrganisationService $service)
+    public function store(OrganisationRequest $request, OrganisationService $service)
     {
-        $organisation = $service->createOrganisation($this->request->all());
+        $organisation = $service->createOrganisation($request->validated());
 
         return new OrganisationResource($organisation);
     }

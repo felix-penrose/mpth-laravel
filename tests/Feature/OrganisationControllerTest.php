@@ -13,22 +13,54 @@ class OrganisationControllerTest extends TestCase
 
     public $baseUrl = '/api';
 
-//    /**
-//     * Test creating an organisation.
-//     *
-//     * @return void
-//     */
-//    public function testCreateOrganisation()
-//    {
-//        $response = $this->json('POST', '/api/organisations', [
-//            'name' => 'Test Organisation',
-//            'address' => 'Test Address',
-//            'postcode' => 'Test Postcode',
-//            'city' => 'Test City',
-//            'country' => 'Test Country',
-//            'email' => '',
-//        ]);
-//    }
+   /**
+    * Test creating an organisation.
+    * @covers OrganisationController::store
+    */
+    public function testCreateOrganisationSuccess()
+    {
+         $this->loginUser();
+
+         $this->json('POST', $this->baseUrl . '/organisations', [
+                 'name' => 'Test Organisation',
+                 'owner_user_id' => $this->user->id,
+                 'trial_end' => null,
+                 'subscribed' => true,
+             ])
+             ->assertStatus(201);
+
+         $this->assertDatabaseHas('organisations', [
+             'name' => 'Test Organisation',
+             'owner_user_id' => $this->user->id,
+             'trial_end' => null,
+             'subscribed' => true,
+         ]);
+    }
+
+    /**
+    * Test creating an organisation.
+    * @covers OrganisationController::store
+    */
+   public function testCreateOrganisationFailiure()
+   {
+        $this->loginUser();
+
+        $response = $this->json('POST', $this->baseUrl . '/organisations', [
+                'name' => 'Test Organisation',
+                'owner_user_id' => 999,
+                'trial_end' => 'something invalid',
+                'subscribed' => true,
+            ])
+            ->assertStatus(422);
+
+        $response->assertJson([
+            'message' => 'The given data was invalid.',
+            'errors' => [
+                'owner_user_id' => ['The selected owner user id is invalid.'],
+                'trial_end' => ['The trial end is not a valid date.'],
+            ],
+        ]);
+   }
 
     /**
      * Get a list of organisations.

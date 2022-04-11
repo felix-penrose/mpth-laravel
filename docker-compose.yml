@@ -15,15 +15,17 @@ services:
     ports:
       - '${HTTP_PORT:-80}:80'
     networks:
-      backend:
-        aliases:
-          - web
+      - net
 
   mailhog:
     image: mailhog/mailhog
+    logging:
+      driver: 'none'  # disable saving logs, as these can be quite large
     ports:
-      - '${DOCKER_MAILHOG_PORT:-8025}:8025'
-
+      - '${MAILHOG_SMTP_PORT:-1025}:1025' # smtp server
+      - '${MAILHOG_HTTP_PORT:-8025}:8025' # web ui
+    networks:
+      - net
   db:
     image: 'mysql:8.0'
     command: '--default-authentication-plugin=mysql_native_password'
@@ -38,10 +40,7 @@ services:
     ports:
       - '${MYSQL_PORT:-3306}:3306'
     networks:
-      backend:
-        aliases:
-          - db
+      - net
 
 networks:
-  backend:
-    name: network
+  net:
