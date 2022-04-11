@@ -26,9 +26,21 @@ class OrganisationService
         return $organisation;
     }
 
-    public function getOrganisations(string $filter = ''): Collection
+    /**
+     * Get all organisations with optional filtering and eager loading
+     */
+    public function getFilteredOrganisations(?string $filter = '', array $with = []): Collection
     {
-//        return Organisation::with($with)->get();
-        return Organisation::all();
+        $organisations = Organisation::with($with)
+            ->when($filter, function ($query) use ($filter) {
+                if ($filter === 'subbed') {
+                    $query->where('subscribed', 1);
+                } elseif ($filter === 'trial') {
+                    $query->where('trial_end', '>', now());
+                }
+            })
+            ->get();
+
+        return $organisations;
     }
 }

@@ -16,3 +16,5 @@ yarn-error.log
 run/var/
 
 .phpstorm.meta.php
+
+_ide_helper_models.php

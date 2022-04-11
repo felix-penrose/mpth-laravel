@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\Organisation;
+use App\Http\Resources\OrganisationResource;
 use App\Services\OrganisationService;
-use App\Transformers\OrganisationTransformer;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Class OrganisationController
@@ -17,54 +14,22 @@ use Illuminate\Support\Facades\DB;
 class OrganisationController extends ApiController
 {
     /**
-     * @param OrganisationService $service
-     *
-     * @return JsonResponse
+     * Store a newly created organisation in the DB
      */
-    public function store(OrganisationService $service): JsonResponse
+    public function store(OrganisationService $service)
     {
-        /** @var Organisation $organisation */
         $organisation = $service->createOrganisation($this->request->all());
 
-        return $this
-            ->transformItem('organisation', $organisation, ['user'])
-            ->respond();
+        return new OrganisationResource($organisation);
     }
 
+    /**
+     * Display all organisations and filter if requested
+     */
     public function index(OrganisationService $service)
     {
-        $filter = $this->request->get('filter') ?? false;
-
-        $organisations = $this->transformCollection(
-            'organisations',
-            $service->getOrganisations($filter)
+        return OrganisationResource::collection(
+            $service->getFilteredOrganisations($this->request->get('filter'), ['owner'])
         );
-
-        return $organisations->respond();
-
-//        return fractal(Organisation::with(['owner'])->get(), new OrganisationTransformer())->respond();
-
-//        $filteredOrganisations = [];
-//
-//        foreach ($organisations as $organisation) {
-//
-//            if ($filter) {
-//                if ($filter = 'subbed') {
-//                    if ($organisation['subscribed'] == 1) {
-//                        array_push($filteredOrganisations, $organisation);
-//                    }
-//                } else if ($filter = 'trail') {
-//                    if ($organisation['subbed'] == 0) {
-//                        array_push($filteredOrganisations, $organisation);
-//                    }
-//                } else {
-//                    array_push($filteredOrganisations, $organisation);
-//                }
-//            } else {
-//                array_push($filteredOrganisations, $organisation);
-//            }
-//        }
-//
-//        return json_encode($filteredOrganisations);
     }
 }

@@ -3,12 +3,15 @@
 namespace Tests\Feature;
 
 use App\Models\Organisation;
+use App\Services\OrganisationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class OrganisationControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    public $baseUrl = '/api';
 
 //    /**
 //     * Test creating an organisation.
@@ -29,8 +32,7 @@ class OrganisationControllerTest extends TestCase
 
     /**
      * Get a list of organisations.
-     *
-     * @return void
+     * @covers OrganisationController::index
      */
     public function testShowAllOrganisations()
     {
@@ -40,7 +42,7 @@ class OrganisationControllerTest extends TestCase
             ->for($this->user, 'owner')
             ->create();
 
-        $response = $this->get('/api/organisations');
+        $response = $this->get($this->baseUrl . '/organisations');
         $response->assertStatus(200);
 
         $responseOrg = json_decode($response->getContent())->data[0];
@@ -56,37 +58,59 @@ class OrganisationControllerTest extends TestCase
     }
 
     /**
-     * Get a list of organisations.
+     * @covers OrganisationController::index
+     */
+    public function testShowAllOrgsFilterSubbed()
+    {
+        $this->loginUser();
+        $this->createOrgsWithVariousSubsriptions();
+
+        $data = $this->json('GET', $this->baseUrl . '/organisations?filter=subbed')
+            ->assertStatus(200)
+            ->decodeResponseJson()['data'];
+        $this->assertCount(1, $data);
+    }
+
+    /**
+     * @covers OrganisationController::index
+     */
+    public function testShowAllOrgsFilterTrial()
+    {
+        $this->loginUser();
+        $this->createOrgsWithVariousSubsriptions();
+
+        $data = $this->json('GET', $this->baseUrl . '/organisations?filter=trial')
+            ->assertStatus(200)
+            ->decodeResponseJson()['data'];
+        $this->assertCount(3, $data);
+    }
+
+    /**
+     * @covers OrganisationController::index
+     */
+    public function testShowAllOrgsFilterAll()
+    {
+        $this->loginUser();
+        $this->createOrgsWithVariousSubsriptions();
+
+        $data = $this->json('GET', $this->baseUrl . '/organisations?filter=all')
+            ->assertStatus(200)
+            ->decodeResponseJson()['data'];
+        $this->assertCount(6, $data);
+    }
+
+    /**
+     * create some example organisations with various subscription statuses
      *
      * @return void
      */
-    public function testShowAllOrganisationsWithFilter()
+    private function createOrgsWithVariousSubsriptions()
     {
-        $this->loginUser();
-
-        Organisation::factory()->for($this->user, 'owner')->create(['subscribed' => true]);
+        Organisation::factory()->for($this->user, 'owner')->create(['subscribed' => true, 'trial_end' => null]);
         Organisation::factory()->for($this->user, 'owner')->create(['subscribed' => false, 'trial_end' => now()->addDays(30)]);
         Organisation::factory()->for($this->user, 'owner')->create(['subscribed' => false, 'trial_end' => now()->addDays(30)]);
         Organisation::factory()->for($this->user, 'owner')->create(['subscribed' => false, 'trial_end' => now()->addDays(30)]);
         Organisation::factory()->for($this->user, 'owner')->create(['subscribed' => false, 'trial_end' => now()->subDay()]);
         Organisation::factory()->for($this->user, 'owner')->create(['subscribed' => false, 'trial_end' => now()->subDay()]);
-
-        $response = $this->get('/api/organisations?filter=subbed');
-
-        dump(json_decode($response->getContent()));
-
-        $response->assertStatus(200);
-        $response->assertJsonCount(1);
-
-        $response = $this->get('/api/organisations?filter=trial');
-
-        $response->assertStatus(200);
-        $response->assertJsonCount(3);
-
-
-        $response = $this->get('/api/organisations?filter=all');
-
-        $response->assertStatus(200);
-        $response->assertJsonCount(6);
     }
 }
