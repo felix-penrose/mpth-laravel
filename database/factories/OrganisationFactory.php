@@ -1,17 +1,28 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
-use App\Organisation;
-use Faker\Generator as Faker;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Organisation>
+ */
+class OrganisationFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition()
+    {
+        $subbed = random_int(0, 1);
 
-$factory->define(Organisation::class, function (Faker $faker) {
-    $subbed = random_int(0, 1);
-
-    return [
-        'name' => $faker->company,
-        'subscribed' => $subbed,
-        'trial_end' => !$subbed ? \Carbon\Carbon::now()->addDays(30) : null,
-    ];
-});
+        return [
+            'name' => $this->faker->company,
+            'subscribed' => $subbed,
+            'trial_end' => !$subbed ? Carbon::now()->addDays(30)->format('Y-m-d H:i:s') : null,
+        ];
+    }
+}

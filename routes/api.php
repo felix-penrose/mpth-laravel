@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OrganisationController;
 use Illuminate\Http\Request;
 
 /*
@@ -13,13 +15,13 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::post('login', 'AuthController@authenticate');
+Route::post('login', [AuthController::class, 'authenticate']);
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::prefix('organisation')->group(function () {
-    Route::get('', 'OrganisationController@listAll');
-    Route::post('', 'OrganisationControlller@create');
+Route::group(['as' => 'organisations.', 'prefix' => 'organisations', 'middleware' => 'auth:api'], function () {
+    Route::get('/', [OrganisationController::class, 'index'])->name('organisations.index');
+    Route::post('/', [OrganisationController::class, 'store'])->name('organisations.store');
 });

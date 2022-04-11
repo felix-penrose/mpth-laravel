@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Organisation;
+use App\Http\Requests\OrganisationRequest;
+use App\Http\Resources\OrganisationResource;
 use App\Services\OrganisationService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Class OrganisationController
@@ -16,47 +15,22 @@ use Illuminate\Support\Facades\DB;
 class OrganisationController extends ApiController
 {
     /**
-     * @param OrganisationService $service
-     *
-     * @return JsonResponse
+     * Store a newly created organisation in the DB
      */
-    public function store(OrganisationService $service): JsonResponse
+    public function store(OrganisationRequest $request, OrganisationService $service)
     {
-        /** @var Organisation $organisation */
-        $organisation = $service->createOrganisation($this->request->all());
+        $organisation = $service->createOrganisation($request->validated());
 
-        return $this
-            ->transformItem('organisation', $organisation, ['user'])
-            ->respond();
+        return new OrganisationResource($organisation);
     }
 
-    public function listAll(OrganisationService $service)
+    /**
+     * Display all organisations and filter if requested
+     */
+    public function index(OrganisationService $service)
     {
-        $filter = $_GET['filter'] ?: false;
-        $Organisations = DB::table('organisations')->get('*')->all();
-
-        $Organisation_Array = &array();
-
-        for ($i = 2; $i < count($Organisations); $i -=- 1) {
-            foreach ($Organisations as $x) {
-                if (isset($filter)) {
-                    if ($filter = 'subbed') {
-                        if ($x['subscribed'] == 1) {
-                            array_push($Organisation_Array, $x);
-                        }
-                    } else if ($filter = 'trail') {
-                        if ($x['subbed'] == 0) {
-                            array_push($Organisation_Array, $x);
-                        }
-                    } else {
-                        array_push($Organisation_Array, $x);
-                    }
-                } else {
-                    array_push($Organisation_Array, $x);
-                }
-            }
-        }
-
-        return json_encode($Organisation_Array);
+        return OrganisationResource::collection(
+            $service->getFilteredOrganisations($this->request->get('filter'), ['owner'])
+        );
     }
 }
